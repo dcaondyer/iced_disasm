@@ -3,15 +3,15 @@ use iced_x86::{
     Decoder, DecoderOptions, Formatter, FormatterOutput, FormatterTextKind, IntelFormatter,
 };
 use std::error::Error;
-use std::fs::File;
-use std::io::{BufReader, ErrorKind, Read};
+use std::fs;
+use std::path::PathBuf;
 use std::process;
 
 const DEFAULT_CODE_RIP: u64 = 0x0000_7FFA_C46A_CDA4;
 
 pub struct Config {
     pub code_bitness: u32,
-    pub file_path: String,
+    pub file_path: PathBuf,
     pub code_rip: u64,
 }
 
@@ -39,7 +39,7 @@ impl Config {
                 process::exit(0);
             }
         };
-        let file_path = args[2].clone();
+        let file_path = PathBuf::from(args[2].clone());
         let code_rip;
         if args.len() > 3 {
             code_rip = match args[3].clone().trim().parse() {
@@ -121,6 +121,8 @@ fn get_color(s: &str, kind: FormatterTextKind) -> ColoredString {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    // This was the old implementation to obtain data from executable.
+    /*
     let mut input = BufReader::new(File::open(config.file_path).unwrap_or_else(|err| {
         eprintln!("Problem reading file: {err}");
         process::exit(1);
@@ -143,6 +145,15 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         let f = u8::from_le_bytes(buffer);
         code.push(f);
     }
+    */
+
+    let code: Vec<u8> = match fs::read(&config.file_path) {
+        Ok(fp) => fp,
+        Err(e) => {
+            eprintln!("Error reading file: {e}");
+            process::exit(1);
+        }
+    };
 
     println!("Starting disassembler... for x{}", config.code_bitness);
     println!();
