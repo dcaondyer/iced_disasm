@@ -19,7 +19,7 @@ impl Config {
     pub fn build(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
             if args[1] != "help" {
-                return Err("Not enough arguments!");
+                return Err("not enough arguments!");
             } else {
                 menu();
                 process::exit(0);
@@ -29,7 +29,7 @@ impl Config {
         let code_bitness = match args[1].clone().trim().parse() {
             Ok(num) => {
                 if num != 64 && num != 32 && num != 16 {
-                    return Err("The code bitness value must be one of 16, 32, or 64!");
+                    return Err("the code bitness value must be one of 16, 32, or 64!");
                 } else {
                     num
                 }
@@ -45,7 +45,7 @@ impl Config {
             code_rip = match args[3].clone().trim().parse() {
                 Ok(num) => num,
                 Err(_) => {
-                    return Err("Wrong code_rip!");
+                    return Err("wrong code_rip!");
                 }
             };
         } else {
