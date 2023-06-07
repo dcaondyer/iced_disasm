@@ -50,7 +50,6 @@ impl Config {
             code_rip = match u64::from_str_radix(str, 16) {
                 Ok(num) => num,
                 Err(_) => {
-                    println!("{}", args[3]);
                     return Err("wrong code_rip!");
                 }
             };
