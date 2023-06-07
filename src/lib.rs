@@ -121,39 +121,7 @@ fn get_color(s: &str, kind: FormatterTextKind) -> ColoredString {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    // This was the old implementation to obtain data from executable.
-    /*
-    let mut input = BufReader::new(File::open(config.file_path).unwrap_or_else(|err| {
-        eprintln!("Problem reading file: {err}");
-        process::exit(1);
-    }));
-    let mut code = Vec::new();
-    let mut buffer = [0u8; std::mem::size_of::<u8>()];
-
-    loop {
-        let res = input.read_exact(&mut buffer);
-        match res {
-            Err(error) if error.kind() == ErrorKind::UnexpectedEof => break,
-            _ => {}
-        }
-        res.unwrap_or_else(|err| {
-            eprintln!("Error reading file: {err}");
-            process::exit(1);
-        });
-
-        // Use `from_be_bytes` if numbers in file is big-endian
-        let f = u8::from_le_bytes(buffer);
-        code.push(f);
-    }
-    */
-
-    let code: Vec<u8> = match fs::read(&config.file_path) {
-        Ok(fp) => fp,
-        Err(e) => {
-            eprintln!("Error reading file: {e}");
-            process::exit(1);
-        }
-    };
+    let code = fs::read(&config.file_path)?;
 
     println!("Starting disassembler... for x{}", config.code_bitness);
     println!();
