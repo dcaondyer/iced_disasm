@@ -42,9 +42,15 @@ impl Config {
         let file_path = PathBuf::from(args[2].clone());
         let code_rip;
         if args.len() > 3 {
-            code_rip = match args[3].clone().trim().parse() {
+            let str = args[3].trim().replace("_", "");
+            let str = match str.strip_prefix("0x") {
+                Some(num) => num,
+                None => &str,
+            };
+            code_rip = match u64::from_str_radix(str, 16) {
                 Ok(num) => num,
                 Err(_) => {
+                    println!("{}", args[3]);
                     return Err("wrong code_rip!");
                 }
             };
@@ -70,7 +76,7 @@ fn menu() {
     println!("Meaning:");
     println!("  [16|32|64] is the arch of the executable");
     println!("  file_path is the path to the file");
-    println!("  code_rip is the instruction pointer register");
+    println!("  code_rip is the IP register in hex format");
     println!();
     println!("To show this message:");
     println!("  ./iced_disasm help");
@@ -123,7 +129,10 @@ fn get_color(s: &str, kind: FormatterTextKind) -> ColoredString {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let code = fs::read(&config.file_path)?;
 
-    println!("Starting disassembler... for x{}", config.code_bitness);
+    println!(
+        "Starting disassembler... for x{} with {:x} as RIP",
+        config.code_bitness, config.code_rip
+    );
     println!();
     disasm(config.code_bitness, code.leak(), config.code_rip);
     println!();
